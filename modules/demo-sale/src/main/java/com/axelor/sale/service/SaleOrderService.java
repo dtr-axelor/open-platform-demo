@@ -22,11 +22,19 @@ import com.axelor.common.ObjectUtils;
 import com.axelor.sale.db.Order;
 import com.axelor.sale.db.OrderLine;
 import com.axelor.sale.db.Tax;
+import com.google.inject.Inject;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import javax.validation.ValidationException;
 
 public class SaleOrderService {
+
+  protected final LogService logService;
+
+  @Inject
+  public SaleOrderService(LogService logService) {
+    this.logService = logService;
+  }
 
   public void validate(Order order) {
     if (order != null
@@ -60,6 +68,8 @@ public class SaleOrderService {
     order.setAmount(amount.setScale(4, RoundingMode.HALF_UP));
     order.setTaxAmount(taxAmount.setScale(4, RoundingMode.HALF_UP));
     order.setTotalAmount(amount.add(taxAmount).setScale(4, RoundingMode.HALF_UP));
+
+    logService.logOrderTotal(order);
 
     return order;
   }
